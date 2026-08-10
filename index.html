@@ -407,7 +407,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     <div class="info-chips">
       <div class="info-chip"><b id="ruleQty">20</b><span>ข้อ</span></div>
       <div class="info-chip"><b id="ruleTime">25</b><span>นาที</span></div>
-      <div class="info-chip"><b>6</b><span>บทสนทนา</span></div>
+      <div class="info-chip"><b id="ruleConv">6</b><span>บทสนทนา</span></div>
       <div class="info-chip"><b>1</b><span>สิทธิ์สอบ (ครั้ง)</span></div>
     </div>
     <ul class="rules">
@@ -597,6 +597,15 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
         <div class="set-field"><label>เปลี่ยนรหัส PIN ครู (4–6 ตัวเลข)</label><input type="text" id="cfgPin" inputmode="numeric" maxlength="6"></div>
       </div>
     </div>
+    <div class="card">
+      <h2>📝 ข้อสอบอยู่บน Google Sheets</h2>
+      <p class="hint" style="line-height:1.8;">คำถาม ตัวเลือก และเฉลย อยู่ในชีต <b>Questions</b> · บทสนทนาอยู่ในชีต <b>Conversations</b><br>
+      แก้ในชีตได้เลย (เปลี่ยนตัวเลือก/เฉลย/เพิ่มข้อ) แล้วกดปุ่มด้านล่างเพื่อโหลดใหม่<br>
+      ⚠️ ในชีต Conversations ให้พิมพ์ <b>___</b> (ขีดล่าง 3 ตัว) ตรงตำแหน่งช่องว่าง และใส่เลขข้อในคอลัมน์ blankNo<br>
+      ถ้าชีตผิดรูปแบบ ระบบจะกลับไปใช้ชุดสำรองในโค้ดให้อัตโนมัติ (ข้อสอบไม่พังกลางคัน)</p>
+      <p class="hint" style="margin-top:8px;">กำลังใช้อยู่: <b id="cfgExamInfo">–</b></p>
+      <button class="btn btn-sm btn-block" id="btnReloadExam" style="margin-top:10px;">🔄 โหลดข้อสอบจากชีตใหม่</button>
+    </div>
     <button class="btn btn-pink btn-block" id="btnSaveCfg">💾 บันทึกการตั้งค่า</button>
     <button class="btn btn-danger btn-block" id="btnClearAll" style="margin-top:10px;">🗑 ล้างผลสอบทั้งหมด (เริ่มสอบรอบใหม่)</button>
   </div>
@@ -664,7 +673,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
 const API_URL = 'https://script.google.com/macros/s/AKfycbzFKhYnLT8cmXT-nflKGXdZep6PcH4RhBkeRIfR4jJMs2bjfBSRHTBcm2Pm7B840zQI/exec';
 
 const FALLBACK_PIN = '7846';   // ใช้เฉพาะตอนยังไม่ต่อ GAS (โหมดฝึกซ้อม)
-const HEARTBEAT_MS = 10000;    // ส่งสถานะสดทุก 10 วินาที
+const HEARTBEAT_MS = 5000;    // ส่งสถานะสดทุก 5 วินาที
 const ADMIN_POLL_MS = 2000;    // แดชบอร์ดครูรีเฟรชทุก 2 วินาที
 const CLASSES = ['ม.4','ม.5','ม.6'];
 const ROOMS = [1,2,3,4];
@@ -683,7 +692,9 @@ const DEFAULT_CFG = {
    💬 บทสนทนา + ข้อสอบ (20 ข้อ / 6 บทสนทนา)
    b = หมายเลขข้อ (เริ่มที่ 0) · pre/post = ข้อความหน้า/หลังช่องว่าง
 ══════════════════════════════════════════════════════════ */
-const CONVOS = [
+/* ▸ ชุดสำรองในโค้ด: ใช้ตอนยังไม่ต่อชีต หรือชีตข้อสอบมีปัญหา
+   ▸ เมื่อต่อ Google Sheets แล้ว ระบบจะโหลดจากชีต Questions + Conversations แทน */
+let CONVOS = [
 { no:1, level:'ระดับง่าย', sit:'At a restaurant', lines:[
   {w:'Customer', t:'Excuse me, there seems to be a mix-up.'},
   {w:'Waitress', t:"I'm so sorry about that! What did you order?"},
@@ -747,7 +758,7 @@ const CONVOS = [
 ]}
 ];
 
-const QUESTIONS = [
+let QUESTIONS = [
 {c:0, choices:['I am allergic to seafood.',"This isn't what I ordered.",'How long will the food take?',"Would you like to try today's special?"], ans:1,
  why:'ลูกค้าเพิ่งบอกว่ามีการสลับจานผิด และประโยคถัดไปขยายว่าสั่งพาสต้าแต่ได้สลัด'},
 {c:0, choices:['Psst! Come over here!','Oh, I apologize for that.',"Eww! There's a fly in my pasta!",'Uh-oh, it looks like I forgot your drink.'], ans:1,
@@ -813,6 +824,7 @@ function applyTheme(name){
 const $ = id => document.getElementById(id);
 const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const OFFLINE = !API_URL || API_URL.indexOf('/exec') === -1;
+let EXAM_FROM_SHEET = false;
 const S = { cfg:Object.assign({},DEFAULT_CFG), isAdmin:false, adminPin:'',
   name:'', no:'', cls:null, room:null, key:'',
   answers:[], order:[], cur:0, seed:0, startMs:0, offset:0, baseDurMs:0, extendMs:0, endTime:0,
@@ -887,6 +899,7 @@ function applyConfig(cfg){
   $('closedBar').classList.toggle('show', c.examOpen !== 'true');
   $('ruleTime').textContent = parseInt(c.durationMinutes,10)||25;
   $('ruleQty').textContent = QUESTIONS.length;
+  $('ruleConv').textContent = CONVOS.length;
 }
 
 /* ══════════════════ BOOT ══════════════════ */
@@ -901,6 +914,10 @@ async function boot(){
   try{
     const r = await api({action:'getConfig'});
     if(!r.ok) throw new Error(r.error||'config');
+    // ข้อสอบจากชีต (ชีต Questions + Conversations) — ถ้าอ่านได้ครบให้ใช้ของชีต
+    if(r.exam && r.exam.convos && r.exam.convos.length && r.exam.questions && r.exam.questions.length){
+      CONVOS = r.exam.convos; QUESTIONS = r.exam.questions; EXAM_FROM_SHEET = true;
+    }else if(r.examIssue){ console.warn('sheet exam issue:', r.examIssue); }
     applyConfig(r.config);
     S.offset = r.serverNow - Date.now();
     if(S.isAdmin) show('scrAdminLogin'); else show('scrRegister');
@@ -1473,6 +1490,7 @@ function fillSettings(c){
   $('cfgOpen').checked=c.examOpen==='true'; $('cfgOnce').checked=c.oneAttempt==='true';
   $('cfgShufC').checked=c.shuffleChoices==='true'; $('cfgShowScore').checked=c.showScore==='true';
   $('cfgShowReview').checked=c.showReview==='true';
+  updateExamInfo();
 }
 async function saveCfg(extra){
   const cfg = extra || {
@@ -1503,6 +1521,13 @@ async function saveCfg(extra){
       toast('บันทึกการตั้งค่าแล้ว ✓'); sfxOk(); pollOnce();
     }else toast('บันทึกไม่สำเร็จ');
   }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
+}
+$('btnReloadExam').addEventListener('click',()=>location.reload());
+function updateExamInfo(){
+  const el=$('cfgExamInfo'); if(!el) return;
+  el.textContent = EXAM_FROM_SHEET
+    ? 'ข้อสอบจากชีต · '+QUESTIONS.length+' ข้อ · '+CONVOS.length+' บทสนทนา'
+    : 'ชุดสำรองในโค้ด · '+QUESTIONS.length+' ข้อ · '+CONVOS.length+' บทสนทนา';
 }
 $('btnSaveCfg').addEventListener('click',()=>saveCfg());
 $('cfgTheme').addEventListener('change',e=>applyTheme(e.target.value));
