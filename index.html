@@ -591,6 +591,19 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
 .theme-paper .bub.s-side{background:#f1e3ea;color:#2b2b2b;border-color:#e0b9cd;}
 .theme-paper .chat-head b{color:#1f1f1f;}
 .theme-paper .chat-head button{background:#fbe9f1;color:#2b2b2b;border-color:#e0b9cd;}
+
+/* ═══════════ 🎯 โหมดฝึกฝนเพื่อแก้คะแนน ═══════════ */
+#practiceLink{color:#fde68a;text-decoration:underline;cursor:pointer;background:rgba(251,191,36,.14);
+  border:1px solid rgba(251,191,36,.4);border-radius:8px;padding:4px 10px;font-size:12.5px;margin-left:4px;
+  font-family:var(--font);}
+.mini-progress{height:8px;border-radius:99px;background:rgba(255,255,255,.13);overflow:hidden;}
+.mini-progress i{display:block;height:100%;width:0%;border-radius:99px;transition:width .6s ease;}
+/* หัวข้อสอบตอนอยู่ในโหมดฝึก — โทนอำพันแยกจากสีชมพูของข้อสอบจริงชัดเจน */
+#examHead.practice-mode{
+  background:linear-gradient(120deg,rgba(251,191,36,.24),rgba(var(--violet-rgb),.14)),rgba(30,6,20,.9);
+  border-color:rgba(251,191,36,.55);}
+#examHead.practice-mode #timerBox b,#examHead.practice-mode #hudProg b{color:#fbbf24;}
+.theme-paper #practiceLink{background:#fff6df;border-color:#e6c674;color:#8a6100;}
 </style>
 </head>
 <body>
@@ -610,7 +623,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     <div id="hero">
       <div class="hero-eyebrow">✦ T-GAT ENGLISH · MOCK TEST</div>
       <div class="hero-title" id="heroTitle">SHORT CONVERSATION</div>
-      <div class="hero-sub" id="heroSub">ข้อสอบเสมือนจริง · เติมบทสนทนาให้สมบูรณ์</div>
+      <div class="hero-sub" id="heroSub">ข้อสอบเสมือนจริง 20 ข้อ · เติมบทสนทนาให้สมบูรณ์</div>
       <div class="hero-school" id="heroSchool">by ครูโอ๊ต · โรงเรียนธนาคารออมสิน</div>
     </div>
   </div>
@@ -636,7 +649,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     <button class="btn btn-pink btn-block" id="btnToRules" style="margin-top:14px;" disabled>ยืนยันตัวตน ➜</button>
   </div>
 
-  <div id="foot">T-GAT SHORT CONVERSATION · 1 คน ทำได้ 1 ครั้ง <button id="adminLink">🇬🇧 T.OAT 🇹🇭</button></div>
+  <div id="foot">T-GAT SHORT CONVERSATION · 1 คน ทำได้ 1 ครั้ง <button id="adminLink">สำหรับครูผู้คุมสอบ</button> <button id="practiceLink" class="hidden">🎯 ฝึกฝนกู้คะแนน</button></div>
 </section>
 
 <!-- ============ RULES ============ -->
@@ -709,10 +722,64 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     <div><span class="stamp" id="stampEl"></span></div>
     <div class="result-sub" id="resSub"></div>
     <button class="btn btn-pink btn-block" id="btnDownloadCard" style="margin-top:18px;">📸 บันทึกภาพผลสอบ</button>
+    <button class="btn btn-block hidden" id="btnResPractice" style="margin-top:10px;border:1.5px solid rgba(251,191,36,.5);">🎯 ยังไม่ผ่านเกณฑ์ — ฝึกฝนเพื่อแก้คะแนน</button>
+    <button id="linkResPractice" class="hidden" style="margin-top:12px;background:none;border:none;color:#fde68a;text-decoration:underline;cursor:pointer;font-family:var(--font);font-size:12.5px;">🎯 ฝึกฝนกู้คะแนน (ถ้ายังไม่ผ่านเกณฑ์)</button>
   </div>
   <div class="card" id="reviewCard">
     <h2>📖 เฉลยและคำอธิบาย</h2>
     <div id="reviewList"></div>
+  </div>
+</section>
+
+<!-- ============ PRACTICE HOME ============ -->
+<section class="screen" id="scrPracticeHome">
+  <div class="card" style="text-align:center;">
+    <h2 style="justify-content:center;">🎯 ฝึกฝนเพื่อแก้คะแนน</h2>
+    <p class="hint" id="pgName">–</p>
+    <p class="hint" id="pgFormula" style="margin-bottom:16px;"></p>
+    <div class="info-chips" style="margin-bottom:6px;">
+      <div class="info-chip"><b id="pgRoundsDone">0</b><span>รอบที่ทำแล้ว (ต้องครบ <span id="pgRoundsGoal">1</span>)</span></div>
+      <div class="info-chip"><b id="pgAvgPct">0</b><span>คะแนนเฉลี่ย (เกณฑ์รอบละ <span id="pgMinScore">0</span>)</span></div>
+    </div>
+    <div class="mini-progress" style="margin:14px 0 4px;"><i id="pgRoundsBar" style="background:linear-gradient(90deg,#7dd3fc,#c084fc);"></i></div>
+    <p class="hint" style="text-align:left;margin-bottom:10px;">ความคืบหน้าจำนวนรอบ</p>
+    <div class="mini-progress"><i id="pgAvgBar" style="background:linear-gradient(90deg,#c084fc,#fbbf24);"></i></div>
+    <p class="hint" style="text-align:left;margin-bottom:16px;">ความคืบหน้าคะแนนเฉลี่ย</p>
+    <p id="pgGoalMsg" style="font-size:14.5px;font-weight:600;margin-bottom:16px;">ฝึกต่อไปเรื่อย ๆ จนกว่าจะครบเกณฑ์นะครับ</p>
+    <button class="btn btn-pink btn-block" id="btnStartPracticeRound">🚀 เริ่มฝึกรอบใหม่</button>
+    <button class="btn btn-block hidden" id="btnPracticeProof" style="margin-top:10px;">📋 ดูหน้าจอสรุปเพื่อแคปส่งครู</button>
+    <button id="btnPracticeBack" style="margin-top:16px;background:none;border:none;color:#e8bcd3;text-decoration:underline;cursor:pointer;font-family:var(--font);font-size:12.5px;">← กลับหน้าแรก</button>
+  </div>
+</section>
+
+<!-- ============ PRACTICE ROUND RESULT ============ -->
+<section class="screen" id="scrPracticeRoundResult">
+  <div class="card result-card">
+    <div class="score-ring"><b id="prScore">0</b><span id="prTotal">จาก 0 ข้อ</span></div>
+    <div class="result-msg" id="prMsg">รอบนี้ทำได้เท่านี้!</div>
+    <div class="result-sub" id="prSub" style="margin-top:12px;"></div>
+    <button class="btn btn-pink btn-block" id="btnPracticeAgain" style="margin-top:18px;">🔁 ฝึกรอบถัดไป</button>
+    <button class="btn btn-block hidden" id="btnPracticeProof2" style="margin-top:10px;">📋 ครบเกณฑ์แล้ว! ดูหน้าจอสรุป</button>
+  </div>
+</section>
+
+<!-- ============ PRACTICE PROOF (แคปส่งครู) ============ -->
+<section class="screen" id="scrPracticeProof">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:44px;">🏅</div>
+    <h2 style="justify-content:center;">ผ่านเกณฑ์ฝึกฝนกู้คะแนนแล้ว!</h2>
+    <p class="hint" style="margin-bottom:16px;">แคปหน้าจอนี้ทั้งหมด แล้วนำไปส่งครูโอ๊ตเพื่อแก้คะแนนสอบจริง</p>
+    <div class="info-chips">
+      <div class="info-chip"><b id="pfRounds">0</b><span>รอบที่ฝึกทั้งหมด</span></div>
+      <div class="info-chip"><b id="pfAvg">0</b><span>คะแนนเฉลี่ย</span></div>
+    </div>
+    <div style="text-align:left;margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(var(--panel-rgb),.55);border:1px solid var(--glass-line);">
+      <div style="margin-bottom:6px;">👤 <b id="pfName">–</b></div>
+      <div class="hint">ชั้น/ห้อง/เลขที่: <span id="pfClass">–</span></div>
+      <div class="hint">วันเวลา: <span id="pfTime">–</span></div>
+    </div>
+    <p class="hint" style="margin-top:14px;">ข้อมูลนี้บันทึกในระบบแล้ว ครูตรวจสอบย้อนหลังได้จากแดชบอร์ด</p>
+    <button class="btn btn-pink btn-block" id="btnPracticeProofBack" style="margin-top:18px;">← กลับหน้าฝึกฝน</button>
   </div>
 </section>
 
@@ -745,6 +812,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
 
   <div class="tabs">
     <button class="tab-btn on" id="tabBtnLive">📡 LIVE สด</button>
+    <button class="tab-btn" id="tabBtnPrac">🎯 กู้คะแนน</button>
     <button class="tab-btn" id="tabBtnSet">⚙️ ตั้งค่า</button>
   </div>
 
@@ -802,6 +870,17 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     </div>
   </div>
 
+  <div id="tabPrac" class="hidden">
+    <div class="card">
+      <h2>🎯 ความคืบหน้าฝึกฝนกู้คะแนน <span class="hint">(รีเฟรชเมื่อเข้าแท็บนี้)</span></h2>
+      <p class="hint" style="margin-bottom:10px;">เกณฑ์ผ่านและเกณฑ์ฝึกฝนตั้งได้ที่แท็บ "⚙️ ตั้งค่า"</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>รอบที่ทำ</th><th>คะแนนเฉลี่ย</th><th>เกณฑ์</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+        <tbody id="pracBody"><tr><td colspan="8" class="empty-cell">🎯 ยังไม่มีใครเริ่มฝึกฝนกู้คะแนน</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
   <div id="tabSet" class="hidden">
     <div class="card">
       <h2>🖼️ หน้าตาเว็บ <span class="hint">(แก้ได้โดยไม่ต้องแตะโค้ด)</span></h2>
@@ -829,6 +908,15 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
         <div class="switch-row"><span>แสดงเฉลยหลังส่งคำตอบ</span><label class="sw"><input type="checkbox" id="cfgShowReview"><i></i></label></div>
         <div class="set-field"><label>เปลี่ยนรหัส PIN ครู (4–6 ตัวเลข)</label><input type="text" id="cfgPin" inputmode="numeric" maxlength="6"></div>
       </div>
+    </div>
+    <div class="card">
+      <h2>🎯 โหมดฝึกฝนกู้คะแนน</h2>
+      <div class="set-grid">
+        <div class="switch-row full"><span>เปิดโหมดฝึกฝนกู้คะแนน (นักเรียนสอบไม่ผ่านฝึกซ้ำได้)</span><label class="sw"><input type="checkbox" id="cfgPracOn"><i></i></label></div>
+        <div class="set-field"><label>เกณฑ์ผ่าน (คะแนนที่ต้องได้ จาก <span id="cfgTotalQHint">20</span> ข้อ)</label><input type="number" id="cfgPassScore" min="0"></div>
+        <div class="set-field"><label>ฝึกกู้คะแนน: แต่ละรอบต้องได้อย่างน้อย</label><input type="number" id="cfgPracMin" min="0"></div>
+      </div>
+      <p class="hint" style="margin-top:10px;">💡 จำนวนรอบที่ต้องฝึกคำนวณอัตโนมัติจาก "เกณฑ์ผ่าน − คะแนนที่นักเรียนได้" ใครพลาดเยอะกว่าก็ฝึกเยอะกว่า (อย่างน้อย 1 รอบเสมอ) แต่ละรอบต้องทำถึงเกณฑ์ขั้นต่ำด้วยตัวเอง ถึงจะนับ ไม่ใช่นับรวมแล้วเฉลี่ยเอา</p>
     </div>
     <div class="card">
       <h2>📝 ข้อสอบอยู่บน Google Sheets</h2>
@@ -916,12 +1004,12 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
    วาง URL ของ Google Apps Script Web App (ลงท้าย /exec)
    ถ้าเว้นว่างไว้ ระบบจะทำงานแบบ "ฝึกซ้อม" (ไม่บันทึก ไม่ล็อก 1 ครั้ง)
 ══════════════════════════════════════════════════════════ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwnMq1_NlIAQvnMNLxtyMhlfi7-KaNpPjsZVAhfTU2rJMQ---Z6QssKtPlteoZTDbyf/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxUcn13yL0MWT8hqv8xiUr3DRzgh2IDIlvZ767xpxwZRi-b7-JJ3gwYcK0EnF17NTD5/exec';
 
 const FALLBACK_PIN = '7846';   // ใช้เฉพาะตอนยังไม่ต่อ GAS (โหมดฝึกซ้อม)
-const HEARTBEAT_MS = 5000;    // ส่งสถานะสดทุก 5 วินาที
+const HEARTBEAT_MS = 10000;    // ส่งสถานะสดทุก 10 วินาที
 const ADMIN_POLL_MS = 2000;    // แดชบอร์ดครูรีเฟรชทุก 2 วินาที
-const CHAT_POLL_MS = 2000;     // จอนักเรียนเช็คข้อความครูทุก 2 วินาที (เด้งเองอัตโนมัติ)
+const CHAT_POLL_MS = 3000;     // จอนักเรียนเช็คข้อความครูทุก 3 วินาที (เด้งเองอัตโนมัติ)
 const CLASSES = ['ม.4','ม.5','ม.6'];
 const ROOMS = [1,2,3,4];
 
@@ -932,7 +1020,8 @@ const DEFAULT_CFG = {
   heroBanner:'', bgImage:'', bgDim:'45', cardWidth:'840',
   colorTheme:'rose', durationMinutes:'25', announcement:'',
   examOpen:'true', oneAttempt:'true', shuffleChoices:'true',
-  showScore:'true', showReview:'true', adminPin:'7846'
+  showScore:'true', showReview:'true', adminPin:'7846',
+  passScore:'', practiceMinScore:'', practiceEnabled:'false'
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -1098,7 +1187,8 @@ const S = { cfg:Object.assign({},DEFAULT_CFG), isAdmin:false, adminPin:'',
   warned5:false, warned1:false, score:0, timerInt:null, hbInt:null, adminInt:null,
   bcSeen:0, stopSeen:0, resumeSeen:0, paused:false, pausedRemain:0,
   adminData:null, adminVioMs:-1, adminVioInit:false,
-  chat:[], chatOpen:false, chatSeen:0, chatKey:'', chatInt:null, chatRole:'', chatPollInt:null, lastTeacherMs:0 };
+  chat:[], chatOpen:false, chatSeen:0, chatKey:'', chatInt:null, chatRole:'', chatPollInt:null, lastTeacherMs:0,
+  entryMode:'exam', pracElig:null, pracSum:null, pracList:null, pracSubmitting:false };
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); }
@@ -1167,6 +1257,13 @@ function applyConfig(cfg){
   $('ruleTime').textContent = parseInt(c.durationMinutes,10)||25;
   $('ruleQty').textContent = QUESTIONS.length;
   $('ruleConv').textContent = CONVOS.length;
+  // เกณฑ์ผ่าน/ฝึกฝน — คำนวณค่าเริ่มต้นจากจำนวนข้อจริงถ้าครูยังไม่ได้ตั้งไว้เอง
+  const total = QUESTIONS.length;
+  const defPass = total ? Math.max(1,Math.round(total*0.5)) : 1;
+  const defPrac = total ? Math.max(1,Math.round(total*0.9)) : 1;
+  S.cfg.passScoreNum = (c.passScore!==undefined&&c.passScore!==null&&c.passScore!=='') ? Number(c.passScore) : defPass;
+  S.cfg.practiceMinScoreNum = (c.practiceMinScore!==undefined&&c.practiceMinScore!==null&&c.practiceMinScore!=='') ? Number(c.practiceMinScore) : defPrac;
+  $('practiceLink').classList.toggle('hidden', c.practiceEnabled!=='true');
 }
 
 /* ══════════════════ BOOT ══════════════════ */
@@ -1221,6 +1318,7 @@ $('adminLink').addEventListener('click',()=>{ const u=new URL(location.href); u.
 
 $('btnToRules').addEventListener('click', async ()=>{
   sfxClick();
+  if(S.entryMode==='practice') return confirmIdentityForPractice();
   if(S.cfg.examOpen !== 'true'){ modal('ยังไม่เปิดการสอบ','ขณะนี้ครูยังไม่เปิดระบบสอบ กรุณารอประกาศจากครูโอ๊ต'); return; }
   S.key = S.cls+'|'+S.room+'|'+S.no;
   const btn=$('btnToRules'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ...';
@@ -1237,6 +1335,43 @@ $('btnToRules').addEventListener('click', async ()=>{
   }catch(e){ toast('เชื่อมต่อไม่สำเร็จ ลองอีกครั้ง'); }
   finally{ btn.disabled=false; btn.textContent='ยืนยันตัวตน ➜'; }
 });
+$('practiceLink').addEventListener('click',()=>{
+  sfxClick();
+  if(S.entryMode==='practice'){
+    S.entryMode='exam';
+    $('practiceLink').textContent='🎯 ฝึกฝนกู้คะแนน';
+    $('btnToRules').textContent='ยืนยันตัวตน ➜';
+    toast('กลับสู่โหมดสอบปกติแล้ว');
+  }else{
+    S.entryMode='practice';
+    $('practiceLink').textContent='✕ ยกเลิกโหมดฝึกฝน';
+    $('btnToRules').textContent='เข้าสู่โหมดฝึกฝน ➜';
+    toast('🎯 โหมดฝึกฝนกู้คะแนน — กรอกข้อมูลแล้วกดปุ่มด้านล่างได้เลย');
+  }
+});
+/** ถ้าผ่านเกณฑ์อยู่แล้ว ถามก่อนว่ายังอยากฝึกต่อไหม — ใช้ร่วมกันทั้งเข้าจากหน้าแรกและจากหน้าผลสอบ
+    คืนค่า true = แสดง modal แล้ว (ผู้เรียกควรหยุด), false = ยังไม่ผ่าน ให้ไปฝึกได้เลย */
+function offerAlreadyPassedIfSo(r){
+  if(!r.notTaken && r.score>=r.passScore){
+    modal('ผ่านเกณฑ์อยู่แล้ว 🎉','คุณผ่านเกณฑ์ข้อสอบชุดนี้แล้ว ('+r.score+'/'+r.total+') ไม่จำเป็นต้องฝึกเพิ่มก็ได้ครับ\nถ้าอยากฝึกฝนเพิ่มเติมก็ทำได้เลย',
+      [{label:'กลับหน้าแรก', fn:exitPracticeMode},{label:'ฝึกฝนต่อเลย', cls:'btn-pink', fn:enterPracticeHome}]);
+    return true;
+  }
+  return false;
+}
+async function confirmIdentityForPractice(){
+  const btn=$('btnToRules'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ...';
+  try{
+    if(OFFLINE){ toast('โหมดฝึกซ้อม: ยังไม่ได้ต่อ Google Sheets'); return; }
+    const r = await api({action:'practiceCheckEligibility', classLevel:S.cls, room:S.room, no:S.no, name:S.name});
+    if(S.entryMode!=='practice') return; // กดยกเลิกโหมดฝึกระหว่างรอผลตรวจสอบ — เคารพการเปลี่ยนใจล่าสุด
+    if(!r.ok){ modal('ยังไม่เปิดให้ฝึกตอนนี้','ตอนนี้ครูยังไม่เปิดโหมดฝึกฝนกู้คะแนน กรุณาลองใหม่ภายหลังนะครับ'); return; }
+    S.pracElig = r;
+    if(offerAlreadyPassedIfSo(r)) return;
+    enterPracticeHome();
+  }catch(e){ toast('เชื่อมต่อไม่สำเร็จ ลองอีกครั้ง'); }
+  finally{ btn.disabled=false; btn.textContent='เข้าสู่โหมดฝึกฝน ➜'; }
+}
 
 /* ══════════════════ เริ่มสอบ ══════════════════ */
 $('btnStart').addEventListener('click', async ()=>{
@@ -1327,6 +1462,9 @@ function cheerAll(ev){
 }
 function enterExam(){
   S.phase='exam';
+  $('examHead').classList.remove('practice-mode');
+  $('timerBox').querySelector('span').textContent='เวลาที่เหลือ';
+  $('btnSubmit').textContent='📨 ส่งคำตอบ';
   $('hudName').textContent=S.name;
   $('hudClass').textContent=S.cls+'/'+S.room+' เลขที่ '+S.no;
   buildPalette(); buildWatermark(); buildBubbles(); renderAll(); show('scrExam');
@@ -1424,8 +1562,10 @@ const ENCOURAGE={25:'🙂 เริ่มต้นได้ดี ทำต่�
 function updateHud(){
   const n=answeredCount(), total=QUESTIONS.length;
   $('hudAnswered').textContent=n+'/'+total;
-  $('vioBadge').textContent='⚠ ผิดกติกา '+S.violations+' ครั้ง';
-  $('vioBadge').classList.toggle('show',S.violations>0);
+  if(S.phase!=='practice'){
+    $('vioBadge').textContent='⚠ ผิดกติกา '+S.violations+' ครั้ง';
+    $('vioBadge').classList.toggle('show',S.violations>0);
+  }
   document.querySelectorAll('#palette .pal').forEach((p,i)=>{ p.classList.toggle('done',S.answers[i]>=0); p.classList.toggle('cur',i===S.cur); });
   const pct=Math.round(n/total*100), fill=$('answerProgressFill');
   fill.style.width=pct+'%'; fill.classList.toggle('high',pct>=67);
@@ -1443,6 +1583,128 @@ $('btnBcReply').addEventListener('click',()=>{
   closeOv('bcOverlay');
   openChat('student', S.key, 'คุยกับครูผู้คุมสอบ', 'ข้อความนี้เห็นแค่คุณกับครูเท่านั้น');
 });
+
+/* ══════════════════ 🎯 โหมดฝึกฝนเพื่อแก้คะแนน ══════════════════ */
+async function enterPracticeFromResult(){
+  if(OFFLINE){ toast('โหมดฝึกซ้อม: ยังไม่ได้ต่อ Google Sheets'); return; }
+  try{
+    const r = await api({action:'practiceCheckEligibility', classLevel:S.cls, room:S.room, no:S.no, name:S.name});
+    if(!r.ok){ modal('ยังไม่เปิดโหมดนี้','ตอนนี้ครูยังไม่เปิดโหมดฝึกฝนกู้คะแนน กรุณาติดต่อครูโอ๊ตนะครับ'); return; }
+    S.pracElig = r;
+    if(offerAlreadyPassedIfSo(r)) return;
+    enterPracticeHome();
+  }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
+}
+async function enterPracticeHome(){
+  S.phase='practiceHome';
+  $('pgName').textContent = S.name+' — '+S.cls+'/'+S.room+' เลขที่ '+S.no;
+  show('scrPracticeHome');
+  await refreshPracticeSummary();
+}
+async function refreshPracticeSummary(){
+  try{
+    const r = await api({action:'practiceGetSummary', classLevel:S.cls, room:S.room, no:S.no, name:S.name});
+    if(!r.ok){
+      modal('ปิดใช้งานแล้ว','ตอนนี้ครูปิดโหมดฝึกฝนกู้คะแนนแล้ว กรุณาติดต่อครูโอ๊ตนะครับ',[{label:'กลับหน้าแรก',cls:'btn-pink',fn:exitPracticeMode}]);
+      return;
+    }
+    S.pracSum = r;
+    renderPracticeHome();
+  }catch(e){ toast('โหลดข้อมูลไม่สำเร็จ'); }
+}
+function renderPracticeHome(){
+  const r=S.pracSum; if(!r) return;
+  $('pgFormula').textContent = (S.pracElig&&S.pracElig.notTaken)
+    ? 'ยังไม่เคยทำข้อสอบชุดนี้ — ต้องฝึกให้ครบ '+r.minRounds+' รอบ (เท่ากับเกณฑ์ผ่าน '+r.passScore+' คะแนน)'
+    : 'เกณฑ์ผ่าน '+r.passScore+' คะแนน − คุณได้ '+r.origScore+' คะแนน = ต้องฝึกให้ครบ '+r.minRounds+' รอบ';
+  $('pgRoundsDone').textContent=r.roundsDone;
+  $('pgRoundsGoal').textContent=r.minRounds;
+  $('pgAvgPct').textContent=r.avgScore+' / '+r.total;
+  $('pgMinScore').textContent=r.minScore;
+  $('pgRoundsBar').style.width=Math.min(100,Math.round(r.roundsDone/r.minRounds*100))+'%';
+  $('pgAvgBar').style.width= r.minScore ? Math.min(100,Math.round(r.avgScore/r.minScore*100))+'%' : '0%';
+  $('btnPracticeProof').classList.toggle('hidden', !r.meetsGoal);
+  $('pgGoalMsg').textContent = r.meetsGoal
+    ? '🎉 ครบเกณฑ์แล้ว! กดดูหน้าจอสรุปเพื่อแคปส่งครูได้เลย'
+    : 'ฝึกต่อไปเรื่อย ๆ จนกว่าจะครบเกณฑ์นะครับ';
+}
+function startPracticeRound(){
+  S.phase='practice'; S.pracSubmitting=false; S.violations=0;
+  const N=QUESTIONS.length;
+  S.order = QUESTIONS.map((q,i)=>seededShuffle(range(q.choices.length), mulberry32(Math.floor(Math.random()*1000000000)+i)));
+  S.answers = new Array(N).fill(-1);
+  S.cur=0; S._lastPos=undefined;
+  $('examHead').classList.add('practice-mode');
+  $('hudName').textContent=S.name;
+  $('hudClass').textContent='🎯 โหมดฝึกฝน · '+S.cls+'/'+S.room+' เลขที่ '+S.no;
+  $('timerText').textContent='∞';
+  $('timerBox').classList.remove('low','t-mid'); $('timerBox').classList.add('t-ok');
+  $('timerBox').querySelector('span').textContent='ไม่จำกัดเวลา';
+  $('vioBadge').classList.remove('show');
+  $('btnSubmit').textContent='📨 ส่งรอบฝึกนี้';
+  buildPalette(); renderAll(); show('scrExam');
+}
+function confirmPracticeSubmit(){
+  const un=QUESTIONS.length-answeredCount();
+  modal('ส่งรอบฝึกนี้',
+    un>0?'ยังไม่ได้ตอบ '+un+' ข้อ ต้องการส่งรอบฝึกนี้เลยหรือไม่?'
+        :'ตอบครบทุกข้อแล้ว ส่งรอบฝึกนี้เลยไหมครับ?',
+    [{label:'ยกเลิก'},{label:'ส่งเลย',cls:'btn-pink',fn:doPracticeSubmit}]);
+}
+async function doPracticeSubmit(){
+  if(S.pracSubmitting) return;
+  S.pracSubmitting=true;
+  const score = QUESTIONS.reduce((s,q,i)=>s+(S.answers[i]===q.ans?1:0),0);
+  const total = QUESTIONS.length;
+  try{
+    const r = await api({action:'practiceSubmitRound', classLevel:S.cls, room:S.room, no:S.no, name:S.name, score:score, total:total});
+    S.pracSubmitting=false;
+    if(!r.ok){
+      modal('ปิดใช้งานแล้ว','ตอนนี้ครูปิดโหมดฝึกฝนกู้คะแนนแล้ว กรุณาติดต่อครูโอ๊ตนะครับ',[{label:'กลับหน้าแรก',cls:'btn-pink',fn:exitPracticeMode}]);
+      return;
+    }
+    if(r.rejected){
+      modal('ยังไม่ถึงเกณฑ์ 💪','รอบนี้ได้ '+r.score+'/'+r.total+' คะแนน (ต้องได้อย่างน้อย '+r.requiredScore+' คะแนนถึงจะนับ)\nรอบนี้ไม่ถูกนับนะครับ ตั้งใจลองใหม่อีกครั้ง!',
+        [{label:'กลับหน้าฝึกฝน',fn:enterPracticeHome},{label:'ลองใหม่อีกครั้ง',cls:'btn-pink',fn:startPracticeRound}]);
+      return;
+    }
+    S.pracSum = r;
+    showPracticeRoundResult(score, total);
+  }catch(e){
+    S.pracSubmitting=false;
+    modal('ส่งไม่สำเร็จ','การเชื่อมต่อขัดข้อง คำตอบรอบนี้ยังอยู่ครบ\nตรวจอินเทอร์เน็ตแล้วลองส่งอีกครั้งนะครับ',[{label:'ลองอีกครั้ง',cls:'btn-pink',fn:doPracticeSubmit}]);
+  }
+}
+function showPracticeRoundResult(score,total){
+  const r=S.pracSum;
+  const pct = total?score/total:0, pctInt=Math.round(pct*100);
+  $('prScore').textContent=score;
+  $('prTotal').textContent='จาก '+total+' ข้อ';
+  $('prMsg').textContent = pctInt>=90?'🌟 เยี่ยมมาก!':pctInt>=70?'👍 ดีขึ้นเรื่อย ๆ!':'💪 ฝึกต่ออีกนิดนะ';
+  $('prSub').innerHTML='ทำไปแล้ว <b style="color:var(--pink);">'+r.roundsDone+'</b>/'+r.minRounds+' รอบ · เฉลี่ยรวม <b style="color:var(--pink);">'+r.avgScore+'</b> คะแนน (ต้องได้ '+r.minScore+')';
+  $('btnPracticeProof2').classList.toggle('hidden', !r.meetsGoal);
+  show('scrPracticeRoundResult');
+  if(pct>=.5) confetti();
+}
+function showPracticeProof(){
+  const r=S.pracSum; if(!r||!r.meetsGoal) return;
+  $('pfRounds').textContent=r.roundsDone;
+  $('pfAvg').textContent=r.avgScore+' / '+r.total;
+  $('pfName').textContent=S.name;
+  $('pfClass').textContent=S.cls+'/'+S.room+' เลขที่ '+S.no;
+  $('pfTime').textContent=new Date().toLocaleString('th-TH',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  show('scrPracticeProof');
+  confetti();
+}
+function exitPracticeMode(){ S.entryMode='exam'; location.reload(); }
+$('btnResPractice').addEventListener('click', enterPracticeFromResult);
+$('linkResPractice').addEventListener('click', enterPracticeFromResult);
+$('btnStartPracticeRound').addEventListener('click', startPracticeRound);
+$('btnPracticeProof').addEventListener('click', showPracticeProof);
+$('btnPracticeBack').addEventListener('click', exitPracticeMode);
+$('btnPracticeAgain').addEventListener('click', startPracticeRound);
+$('btnPracticeProof2').addEventListener('click', showPracticeProof);
+$('btnPracticeProofBack').addEventListener('click', enterPracticeHome);
 
 /* ══════════════════ 💬 แชทส่วนตัว ครู ↔ นักเรียน ══════════════════ */
 function chatTime(ms){
@@ -1592,6 +1854,7 @@ async function heartbeat(){
 
 /* ══════════════════ ส่งคำตอบ ══════════════════ */
 $('btnSubmit').addEventListener('click',()=>{
+  if(S.phase==='practice') return confirmPracticeSubmit();
   const un=QUESTIONS.length-answeredCount();
   modal('ยืนยันส่งคำตอบ',
     un>0?'ยังไม่ได้ตอบ '+un+' ข้อ!\nต้องการส่งคำตอบเลยหรือไม่? ส่งแล้วแก้ไขไม่ได้'
@@ -1629,12 +1892,13 @@ async function doSubmit(auto){
 }
 function showResult(auto){
   const total=QUESTIONS.length, pct=S.score/total;
+  const passPct = total ? S.cfg.passScoreNum/total : 0.5;
   if(S.cfg.showScore==='true'){
     $('resultScoreWrap').style.display='';
     $('resTotal').textContent='จาก '+total+' คะแนน';
-    $('resMsg').textContent = pct>=.8?'🏆 ยอดเยี่ยมมาก!':pct>=.6?'👍 ทำได้ดี!':pct>=.5?'🙂 ผ่านเกณฑ์':'💪 ครั้งหน้าสู้ใหม่นะ';
+    $('resMsg').textContent = pct>=.8?'🏆 ยอดเยี่ยมมาก!':pct>=.6?'👍 ทำได้ดี!':pct>=passPct?'🙂 ผ่านเกณฑ์':'💪 ครั้งหน้าสู้ใหม่นะ';
     const st=$('stampEl');
-    const info = pct>=.8?['EXCELLENT','t-pink']:pct>=.6?['GREAT JOB','t-mint']:pct>=.5?['PASSED','t-ok']:['KEEP FIGHTING','t-red'];
+    const info = pct>=.8?['EXCELLENT','t-pink']:pct>=.6?['GREAT JOB','t-mint']:pct>=passPct?['PASSED','t-ok']:['KEEP FIGHTING','t-red'];
     st.className='stamp '+info[1]; st.textContent=info[0];
     setTimeout(()=>{ st.classList.add('show'); tone(150,.18,'square',0,.12); }, REDUCED?40:900);
     animateScore(S.score);
@@ -1651,8 +1915,14 @@ function showResult(auto){
   $('resSub').innerHTML=sub;
   if(S.cfg.showReview==='true'){ $('reviewCard').classList.remove('hidden'); renderReview(); }
   else $('reviewCard').classList.add('hidden');
+  // ปุ่มฝึกกู้คะแนน — ถ้าปิดใช้งานอยู่ ซ่อนทั้งคู่ไปเลย (ไม่ให้รู้ด้วยซ้ำว่ามีโหมดนี้)
+  // ถ้าเปิดอยู่: เด่นชัดถ้ารู้แน่ว่าไม่ผ่าน ไม่งั้นแสดงเป็นลิงก์เล็ก ๆ ไว้เผื่อ (กรณีซ่อนคะแนน)
+  const practiceOn = S.cfg.practiceEnabled==='true';
+  const knownFail = (practiceOn && S.cfg.showScore==='true' && pct<passPct);
+  $('btnResPractice').classList.toggle('hidden', !knownFail);
+  $('linkResPractice').classList.toggle('hidden', !practiceOn || knownFail);
   show('scrResult');
-  if(pct>=.5) confetti();
+  if(pct>=passPct) confetti();
 }
 function animateScore(t){
   const el=$('resScore'), dur=REDUCED?60:1200, t0=Date.now();
@@ -1737,12 +2007,18 @@ document.addEventListener('contextmenu',e=>{ e.preventDefault(); if(S.phase==='e
   if(S.phase==='exam'&&!S.submitted){ e.preventDefault(); toast('🚫 ห้ามคัดลอกข้อความระหว่างสอบ'); }
 }));
 document.addEventListener('keydown',e=>{
-  if(S.phase!=='exam'||S.submitted) return;
-  const k=(e.key||'').toLowerCase();
-  if(e.key==='F12'||((e.ctrlKey||e.metaKey)&&['c','v','x','a','u','p','s'].includes(k))||
-     ((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(k))){ e.preventDefault(); toast('🚫 ปุ่มลัดนี้ถูกปิดระหว่างสอบ'); }
-  if(k==='arrowleft') goTo(S.cur-1,'prev');
-  if(k==='arrowright') goTo(S.cur+1,'next');
+  // ปุ่มลัดกันโกงบล็อกเฉพาะตอนสอบจริงเท่านั้น (โหมดฝึกไม่ใช่ข้อสอบจริง ไม่ต้องกันอะไร)
+  if(S.phase==='exam'&&!S.submitted){
+    const k=(e.key||'').toLowerCase();
+    if(e.key==='F12'||((e.ctrlKey||e.metaKey)&&['c','v','x','a','u','p','s'].includes(k))||
+       ((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(k))){ e.preventDefault(); toast('🚫 ปุ่มลัดนี้ถูกปิดระหว่างสอบ'); }
+  }
+  // ลูกศรซ้าย-ขวาเปลี่ยนข้อ ใช้ได้ทั้งสอบจริงและโหมดฝึก (ไม่เกี่ยวกับกันทุจริต)
+  if((S.phase==='exam'||S.phase==='practice')&&!S.submitted){
+    const k=(e.key||'').toLowerCase();
+    if(k==='arrowleft') goTo(S.cur-1,'prev');
+    if(k==='arrowright') goTo(S.cur+1,'next');
+  }
 });
 window.addEventListener('beforeunload',e=>{ if(S.phase==='exam'&&!S.submitted){ e.preventDefault(); e.returnValue=''; } });
 try{
@@ -1778,12 +2054,16 @@ async function adminLogin(){
 }
 function setTab(name){
   $('tabBtnLive').classList.toggle('on',name==='live');
+  $('tabBtnPrac').classList.toggle('on',name==='prac');
   $('tabBtnSet').classList.toggle('on',name==='set');
   $('tabLive').classList.toggle('hidden',name!=='live');
+  $('tabPrac').classList.toggle('hidden',name!=='prac');
   $('tabSet').classList.toggle('hidden',name!=='set');
   if(name==='set'&&S.adminData) fillSettings(S.adminData.config);
+  if(name==='prac') loadPracticeList();
 }
 $('tabBtnLive').addEventListener('click',()=>setTab('live'));
+$('tabBtnPrac').addEventListener('click',()=>setTab('prac'));
 $('tabBtnSet').addEventListener('click',()=>setTab('set'));
 
 function startPoll(){ if(S.adminInt) clearInterval(S.adminInt); pollOnce(); S.adminInt=setInterval(pollOnce,ADMIN_POLL_MS); }
@@ -1796,7 +2076,8 @@ async function pollOnce(){
   }catch(e){}
 }
 const VIO_LABELS={TAB_SWITCH:'สลับแท็บ/ออกจากหน้าจอ',WINDOW_BLUR:'ออกจากหน้าต่างสอบ',TRANSLATE:'ใช้โปรแกรมแปลภาษา',
-  RIGHT_CLICK:'พยายามคลิกขวา',COPY_PASTE:'พยายามคัดลอก'};
+  RIGHT_CLICK:'พยายามคลิกขวา',COPY_PASTE:'พยายามคัดลอก',
+  ADMIN_RESET:'ครูปลดล็อกให้สอบใหม่',SCORE_ADJUST:'ครูปรับคะแนน (ฝึกกู้คะแนน)'};
 function checkNewVio(list){
   const arr=Array.isArray(list)?list:[]; let max=S.adminVioMs, newest=null;
   arr.forEach(v=>{ const ms=Number(v.ms)||0; if(ms>max){ max=ms; newest=v; } });
@@ -1853,6 +2134,7 @@ function renderAdmin(){
     : '<tr><td colspan="4" class="empty-cell">✨ ยังไม่มีเหตุการณ์</td></tr>';
 
   if($('warRoom').classList.contains('show')) renderWar();
+  if(!$('tabPrac').classList.contains('hidden')) loadPracticeList();
 }
 function bcLabel(bc){
   if(!bc) return '';
@@ -1872,6 +2154,8 @@ document.addEventListener('click',e=>{
   if((t=e.target.closest('[data-pause]'))) return adminAct('adminPause',t.getAttribute('data-pause'),'พักการสอบของ '+t.getAttribute('data-name')+' แล้ว');
   if((t=e.target.closest('[data-resume]'))) return adminAct('adminResume',t.getAttribute('data-resume'),'ให้ '+t.getAttribute('data-name')+' ทำต่อแล้ว (ต่อเวลาชดเชยให้)');
   if((t=e.target.closest('[data-msg]'))) return askDm(t.getAttribute('data-msg'),t.getAttribute('data-name'));
+  if((t=e.target.closest('[data-padj]'))) return askAdjustScore(t.getAttribute('data-padj'),t.getAttribute('data-pname'));
+  if((t=e.target.closest('[data-pclr]'))) return askClearPractice(t.getAttribute('data-pclr'),t.getAttribute('data-pname'));
 });
 async function adminAct(action,key,okMsg){
   try{ const r=await api({action:action, pin:S.adminPin, key:key});
@@ -1896,6 +2180,52 @@ function askDm(key,name){
   // เปิดห้องแชทส่วนตัวกับนักเรียนคนนี้ (คุยโต้ตอบได้ ไม่ใช่ส่งทางเดียว)
   S.chat=[];
   openChat('teacher', key, '💬 '+name, 'ห้องแชทส่วนตัว · เห็นเฉพาะครูกับนักเรียนคนนี้');
+}
+async function loadPracticeList(){
+  try{
+    const r=await api({action:'adminPracticeList', pin:S.adminPin});
+    if(!r.ok) return;
+    S.pracList=r.list; renderPracticeList();
+  }catch(e){ toast('โหลดข้อมูลไม่สำเร็จ'); }
+}
+function renderPracticeList(){
+  const list=S.pracList||[];
+  if(!list.length){ $('pracBody').innerHTML='<tr><td colspan="8" class="empty-cell">🎯 ยังไม่มีใครเริ่มฝึกฝนกู้คะแนน</td></tr>'; return; }
+  $('pracBody').innerHTML=list.map(g=>{
+    const status=g.meetsGoal?'<span class="pill ok">✅ ครบเกณฑ์</span>':'<span class="pill warn">⏳ กำลังฝึก</span>';
+    return '<tr><td>'+esc(g.classLevel)+'/'+esc(g.room)+'</td><td>'+esc(g.no)+'</td><td class="name">'+esc(g.name)+'</td>'
+      +'<td>'+g.roundsDone+'</td><td>'+g.avgScore+'/'+g.total+'</td>'
+      +'<td class="hint" style="white-space:nowrap;">'+g.minRounds+' รอบ / '+g.minScore+' คะแนน</td><td>'+status+'</td>'
+      +'<td style="white-space:normal;"><button class="btn btn-sm btn-pink" data-padj="'+esc(g.classLevel)+'|'+esc(g.room)+'|'+esc(g.no)+'" data-pname="'+esc(g.name)+'" style="margin-right:4px;">ปรับให้ผ่าน</button>'
+      +'<button class="btn btn-sm btn-danger" data-pclr="'+esc(g.key)+'" data-pname="'+esc(g.name)+'">ล้างประวัติ</button></td></tr>';
+  }).join('');
+}
+function askAdjustScore(clsRoomNo,name){
+  const parts=clsRoomNo.split('|'); const cls=parts[0], room=parts[1], no=parts[2];
+  const box=$('modalBox'); box.className='modal';
+  box.innerHTML='<h3>✅ ปรับคะแนนให้ '+esc(name)+'</h3>'
+    +'<p class="hint" style="text-align:left;margin-bottom:10px;">ตรวจสอบหลักฐานที่นักเรียนแคปมาก่อน แล้วพิมพ์คะแนนที่จะบันทึกเป็นผลสอบจริง</p>'
+    +'<div class="set-field full" style="margin-bottom:14px;text-align:left;"><label>คะแนน</label><input type="number" id="adjScoreInput" min="0" style="font-family:var(--font);font-size:16px;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.08);border:1px solid var(--glass-line);color:#fff;width:100%;"></div>'
+    +'<div class="row"><button class="btn" id="adjCancel">ยกเลิก</button><button class="btn btn-pink" id="adjSave">บันทึกคะแนน</button></div>';
+  openOv('modalWrap');
+  box.querySelector('#adjCancel').addEventListener('click',()=>closeOv('modalWrap'));
+  box.querySelector('#adjSave').addEventListener('click', async ()=>{
+    const v=Number($('adjScoreInput').value);
+    if(isNaN(v)||v<0){ toast('พิมพ์คะแนนให้ถูกต้องก่อน'); return; }
+    try{
+      const r=await api({action:'adminPracticeSetScore', pin:S.adminPin, classLevel:cls, room:room, no:no, name:name, score:v});
+      if(r.ok){ closeOv('modalWrap'); toast('บันทึกคะแนน '+name+' เป็น '+r.newScore+' แล้ว ✓'); loadPracticeList(); pollOnce(); }
+      else toast('ปรับคะแนนไม่สำเร็จ');
+    }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
+  });
+}
+function askClearPractice(key,name){
+  modal('ล้างประวัติการฝึก','ล้างประวัติการฝึกฝนกู้คะแนนทั้งหมดของ "'+name+'" เพื่อให้เริ่มนับใหม่ ใช่หรือไม่?\nการกระทำนี้ย้อนกลับไม่ได้',
+    [{label:'ยกเลิก'},{label:'ยืนยันล้าง',cls:'btn-danger',fn:async()=>{
+      try{ const r=await api({action:'adminPracticeClear', pin:S.adminPin, key:key});
+        if(r.ok){ toast('ล้างประวัติของ '+name+' แล้ว ('+r.removed+' รอบ)'); loadPracticeList(); } else toast('ล้างไม่สำเร็จ');
+      }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
+    }}]);
 }
 async function sendBc(msg){
   try{
@@ -1938,6 +2268,10 @@ function fillSettings(c){
   $('cfgOpen').checked=c.examOpen==='true'; $('cfgOnce').checked=c.oneAttempt==='true';
   $('cfgShufC').checked=c.shuffleChoices==='true'; $('cfgShowScore').checked=c.showScore==='true';
   $('cfgShowReview').checked=c.showReview==='true';
+  $('cfgPracOn').checked=c.practiceEnabled==='true';
+  $('cfgPassScore').value=(c.passScore!==undefined&&c.passScore!=='')?c.passScore:S.cfg.passScoreNum;
+  $('cfgPracMin').value=(c.practiceMinScore!==undefined&&c.practiceMinScore!=='')?c.practiceMinScore:S.cfg.practiceMinScoreNum;
+  $('cfgTotalQHint').textContent=QUESTIONS.length;
   updateExamInfo();
 }
 async function saveCfg(extra){
@@ -1957,6 +2291,9 @@ async function saveCfg(extra){
     shuffleChoices:$('cfgShufC').checked?'true':'false',
     showScore:$('cfgShowScore').checked?'true':'false',
     showReview:$('cfgShowReview').checked?'true':'false',
+    practiceEnabled:$('cfgPracOn').checked?'true':'false',
+    passScore:String(Math.max(0,parseInt($('cfgPassScore').value,10)||0)),
+    practiceMinScore:String(Math.max(0,parseInt($('cfgPracMin').value,10)||0)),
     adminPin:(/^\d{4,6}$/.test($('cfgPin').value.trim())?$('cfgPin').value.trim():S.cfg.adminPin)
   };
   if(OFFLINE){ applyConfig(Object.assign({},S.cfg,cfg)); fillSettings(S.cfg); toast('โหมดฝึกซ้อม: บันทึกชั่วคราวในเครื่องเท่านั้น'); return; }
@@ -2032,7 +2369,7 @@ function renderWar(){
   else $('warBc').classList.remove('show');
 }
 
-window.__EXAM_DEBUG={S,QUESTIONS,CONVOS,doSubmit,renderAll};
+window.__EXAM_DEBUG={S,QUESTIONS,CONVOS,doSubmit,renderAll,startPracticeRound,doPracticeSubmit,enterPracticeHome,enterPracticeFromResult};
 boot();
 </script>
 </body>
