@@ -847,16 +847,16 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
     <div class="card">
       <h2>🟢 กำลังสอบอยู่ตอนนี้ <span class="hint">(อัปเดตทุก 2 วินาที)</span></h2>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>ทำถึงข้อ</th><th>ตอบแล้ว</th><th>เหลือเวลา</th><th>ผิดกติกา</th><th>สัญญาณ</th><th>จัดการ</th></tr></thead>
-        <tbody id="activeBody"><tr><td colspan="9" class="empty-cell">🕒 ยังไม่มีนักเรียนกำลังสอบ</td></tr></tbody>
+        <thead><tr><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>ชุด</th><th>ทำถึงข้อ</th><th>ตอบแล้ว</th><th>เหลือเวลา</th><th>ผิดกติกา</th><th>สัญญาณ</th><th>จัดการ</th></tr></thead>
+        <tbody id="activeBody"><tr><td colspan="10" class="empty-cell">🕒 ยังไม่มีนักเรียนกำลังสอบ</td></tr></tbody>
       </table></div>
     </div>
 
     <div class="card">
       <h2>📦 ส่งคำตอบแล้ว <span class="hint">(กด "ปลดล็อก" เพื่อให้สอบใหม่)</span></h2>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>เวลาส่ง</th><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>คะแนน</th><th>ใช้เวลา</th><th>ผิดกติกา</th><th>จัดการ</th></tr></thead>
-        <tbody id="resultBody"><tr><td colspan="8" class="empty-cell">📭 ยังไม่มีผู้ส่งคำตอบ</td></tr></tbody>
+        <thead><tr><th>เวลาส่ง</th><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>ชุด</th><th>คะแนน</th><th>ใช้เวลา</th><th>ผิดกติกา</th><th>จัดการ</th></tr></thead>
+        <tbody id="resultBody"><tr><td colspan="9" class="empty-cell">📭 ยังไม่มีผู้ส่งคำตอบ</td></tr></tbody>
       </table></div>
       <button class="btn btn-sm btn-block" id="btnExportCsv" style="margin-top:12px;">⬇️ ดาวน์โหลดผลสอบเป็น CSV</button>
     </div>
@@ -873,7 +873,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
   <div id="tabPrac" class="hidden">
     <div class="card">
       <h2>🎯 ความคืบหน้าฝึกฝนกู้คะแนน <span class="hint">(รีเฟรชเมื่อเข้าแท็บนี้)</span></h2>
-      <p class="hint" style="margin-bottom:10px;">เกณฑ์ผ่านและเกณฑ์ฝึกฝนตั้งได้ที่แท็บ "⚙️ ตั้งค่า"</p>
+      <p class="hint" style="margin-bottom:10px;">เกณฑ์ผ่านและเกณฑ์ฝึกฝนตั้งได้ที่แท็บ "⚙️ ตั้งค่า" · แสดงเฉพาะชุดที่ใช้งานอยู่ตอนนี้: <b id="pracSetHint" style="color:var(--pink);">–</b></p>
       <div class="tbl-wrap"><table>
         <thead><tr><th>ชั้น/ห้อง</th><th>เลขที่</th><th>ชื่อ</th><th>รอบที่ทำ</th><th>คะแนนเฉลี่ย</th><th>เกณฑ์</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
         <tbody id="pracBody"><tr><td colspan="8" class="empty-cell">🎯 ยังไม่มีใครเริ่มฝึกฝนกู้คะแนน</td></tr></tbody>
@@ -926,6 +926,16 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
       ถ้าชีตผิดรูปแบบ ระบบจะกลับไปใช้ชุดสำรองในโค้ดให้อัตโนมัติ (ข้อสอบไม่พังกลางคัน)</p>
       <p class="hint" style="margin-top:8px;">กำลังใช้อยู่: <b id="cfgExamInfo">–</b></p>
       <button class="btn btn-sm btn-block" id="btnReloadExam" style="margin-top:10px;">🔄 โหลดข้อสอบจากชีตใหม่</button>
+    </div>
+    <div class="card">
+      <h2>🗂️ อยากใส่คำถามชุดใหม่? เพิ่ม "ชุด" ได้โดยไม่ต้องทำเว็บใหม่</h2>
+      <p class="hint" style="line-height:1.8;">ในชีต <b>Questions</b> และ <b>Conversations</b> มีคอลัมน์ <b>set</b> ท้ายตาราง — เว้นว่าง = ชุดหลักที่ใช้อยู่ตอนนี้<br>
+      จะเพิ่มชุดใหม่ ก็เพิ่มแถวใหม่ในทั้งสองชีต (เลขข้อ/บทสนทนาเริ่มนับ 1 ใหม่ในชุดนั้น) แล้วใส่รหัสชุด เช่น <b>2</b> ลงคอลัมน์ set ให้ตรงกันทุกแถวของชุดนั้น<br>
+      ใส่ชื่อชุดในคอลัมน์ <b>setTitle</b> ของชีต Questions ได้ (พิมพ์แถวแรกของชุดพอ) แล้วกดโหลดข้อมูลชุดใหม่ด้านล่างเพื่อให้เมนูอัปเดต<br>
+      💡 นักเรียนที่สอบชุดเดิมไปแล้วจะไม่ถูกล็อกจากชุดใหม่ — สลับชุดเมื่อไหร่ ถือว่าเป็นข้อสอบคนละชุดกัน ผลสอบเก่ายังอยู่ครบ</p>
+      <div class="set-field full" style="margin-top:12px;"><label>ชุดข้อสอบที่ใช้งานอยู่ตอนนี้</label><select id="cfgActiveSet"></select></div>
+      <p class="hint" id="cfgSetsInfo" style="margin-top:8px;"></p>
+      <button class="btn btn-sm btn-block" id="btnReloadSets" style="margin-top:10px;">🔄 โหลดรายชื่อชุดใหม่จากชีต</button>
     </div>
     <button class="btn btn-pink btn-block" id="btnSaveCfg">💾 บันทึกการตั้งค่า</button>
     <button class="btn btn-danger btn-block" id="btnClearAll" style="margin-top:10px;">🗑 ล้างผลสอบทั้งหมด (เริ่มสอบรอบใหม่)</button>
@@ -1004,7 +1014,7 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
    วาง URL ของ Google Apps Script Web App (ลงท้าย /exec)
    ถ้าเว้นว่างไว้ ระบบจะทำงานแบบ "ฝึกซ้อม" (ไม่บันทึก ไม่ล็อก 1 ครั้ง)
 ══════════════════════════════════════════════════════════ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxUcn13yL0MWT8hqv8xiUr3DRzgh2IDIlvZ767xpxwZRi-b7-JJ3gwYcK0EnF17NTD5/exec';
+const API_URL = '';
 
 const FALLBACK_PIN = '7846';   // ใช้เฉพาะตอนยังไม่ต่อ GAS (โหมดฝึกซ้อม)
 const HEARTBEAT_MS = 10000;    // ส่งสถานะสดทุก 10 วินาที
@@ -1021,7 +1031,8 @@ const DEFAULT_CFG = {
   colorTheme:'rose', durationMinutes:'25', announcement:'',
   examOpen:'true', oneAttempt:'true', shuffleChoices:'true',
   showScore:'true', showReview:'true', adminPin:'7846',
-  passScore:'', practiceMinScore:'', practiceEnabled:'false'
+  passScore:'', practiceMinScore:'', practiceEnabled:'false',
+  activeSetId:''
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -1181,14 +1192,14 @@ const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-moti
 const OFFLINE = !API_URL || API_URL.indexOf('/exec') === -1;
 let EXAM_FROM_SHEET = false;
 const S = { cfg:Object.assign({},DEFAULT_CFG), isAdmin:false, adminPin:'',
-  name:'', no:'', cls:null, room:null, key:'',
+  name:'', no:'', cls:null, room:null, key:'', attemptSetId:'',
   answers:[], order:[], cur:0, seed:0, startMs:0, offset:0, baseDurMs:0, extendMs:0, endTime:0,
   violations:0, lastVio:0, phase:'boot', submitted:false, submitting:false,
   warned5:false, warned1:false, score:0, timerInt:null, hbInt:null, adminInt:null,
   bcSeen:0, stopSeen:0, resumeSeen:0, paused:false, pausedRemain:0,
   adminData:null, adminVioMs:-1, adminVioInit:false,
   chat:[], chatOpen:false, chatSeen:0, chatKey:'', chatInt:null, chatRole:'', chatPollInt:null, lastTeacherMs:0,
-  entryMode:'exam', pracElig:null, pracSum:null, pracList:null, pracSubmitting:false };
+  entryMode:'exam', pracElig:null, pracSum:null, pracList:null, pracSubmitting:false, examSets:[] };
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); }
@@ -1282,6 +1293,7 @@ async function boot(){
     if(r.exam && r.exam.convos && r.exam.convos.length && r.exam.questions && r.exam.questions.length){
       CONVOS = r.exam.convos; QUESTIONS = r.exam.questions; EXAM_FROM_SHEET = true;
     }else if(r.examIssue){ console.warn('sheet exam issue:', r.examIssue); }
+    S.examSets = r.examSets || [];
     applyConfig(r.config);
     S.offset = r.serverNow - Date.now();
     if(S.isAdmin) show('scrAdminLogin'); else show('scrRegister');
@@ -1324,7 +1336,7 @@ $('btnToRules').addEventListener('click', async ()=>{
   const btn=$('btnToRules'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ...';
   try{
     if(!OFFLINE){
-      const r = await api({action:'checkStudent', key:S.key});
+      const r = await api({action:'checkStudent', key:S.key, setId:S.cfg.activeSetId});
       if(r.ok && r.status==='SUBMITTED'){
         modal('ทำข้อสอบชุดนี้ไปแล้ว','คุณได้ส่งคำตอบไปแล้ว 1 ครั้ง\nถ้าต้องการทำใหม่ ให้แจ้ง "ครูโอ๊ต" เพื่อปลดล็อกให้ก่อนนะ');
         return;
@@ -1359,6 +1371,13 @@ function offerAlreadyPassedIfSo(r){
   }
   return false;
 }
+/** ก่อนเข้าโหมดฝึก ซิงก์ QUESTIONS/CONVOS ให้ตรงกับ "ชุดที่ active อยู่ตอนนี้" เสมอ — เผื่อครูสลับชุด
+    ไปแล้วหลังจากเครื่องนี้ boot() มา (ซึ่งโหลดของชุดเดิมค้างไว้) กันฝึกกับข้อที่ผิดชุด */
+function syncExamContent(exam){
+  if(exam && exam.convos && exam.convos.length && exam.questions && exam.questions.length){
+    CONVOS = exam.convos; QUESTIONS = exam.questions; EXAM_FROM_SHEET = true;
+  }
+}
 async function confirmIdentityForPractice(){
   const btn=$('btnToRules'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ...';
   try{
@@ -1366,6 +1385,7 @@ async function confirmIdentityForPractice(){
     const r = await api({action:'practiceCheckEligibility', classLevel:S.cls, room:S.room, no:S.no, name:S.name});
     if(S.entryMode!=='practice') return; // กดยกเลิกโหมดฝึกระหว่างรอผลตรวจสอบ — เคารพการเปลี่ยนใจล่าสุด
     if(!r.ok){ modal('ยังไม่เปิดให้ฝึกตอนนี้','ตอนนี้ครูยังไม่เปิดโหมดฝึกฝนกู้คะแนน กรุณาลองใหม่ภายหลังนะครับ'); return; }
+    syncExamContent(r.exam);
     S.pracElig = r;
     if(offerAlreadyPassedIfSo(r)) return;
     enterPracticeHome();
@@ -1378,13 +1398,14 @@ $('btnStart').addEventListener('click', async ()=>{
   const btn=$('btnStart'); btn.disabled=true; btn.textContent='กำลังเริ่มการสอบ...';
   const durMs = (parseInt(S.cfg.durationMinutes,10)||25)*60000;
   S.baseDurMs = durMs; S.extendMs=0; S.violations=0; S.submitted=false; S.warned5=false; S.warned1=false;
-  S.answers = new Array(QUESTIONS.length).fill(-1);
   try{
     if(OFFLINE){
       S.seed = hashSeed(S.name+'|'+S.cls+'|'+S.room+'|'+S.no);
       S.startMs = Date.now(); S.offset = 0;
+      S.attemptSetId = S.cfg.activeSetId;
+      S.answers = new Array(QUESTIONS.length).fill(-1);
     }else{
-      const r = await api({action:'startExam', key:S.key, name:S.name, classLevel:S.cls, room:S.room, no:S.no, total:QUESTIONS.length});
+      const r = await api({action:'startExam', key:S.key, name:S.name, classLevel:S.cls, room:S.room, no:S.no, total:QUESTIONS.length, setId:S.cfg.activeSetId});
       if(!r.ok){
         if(r.code==='DONE'){ modal('ทำข้อสอบไปแล้ว','คุณส่งคำตอบไปแล้ว แจ้งครูโอ๊ตเพื่อปลดล็อกก่อนนะ',[{label:'รับทราบ',cls:'btn-pink',fn:()=>location.reload()}]); return; }
         if(r.code==='CLOSED'){ modal('ยังไม่เปิดการสอบ','กรุณารอครูโอ๊ตเปิดระบบสอบก่อน'); return; }
@@ -1392,8 +1413,18 @@ $('btnStart').addEventListener('click', async ()=>{
       }
       S.seed = r.seed; S.startMs = r.startMs; S.offset = r.serverNow - Date.now();
       S.extendMs = Number(r.extendMs)||0;
+      // ใช้ชุดข้อสอบที่ "เริ่มไว้จริง" (สำคัญตอนเข้าสอบต่อ — เผื่อครูสลับชุดที่ active
+      // ไปแล้วระหว่างที่ยังสอบค้างอยู่ ผลสอบต้องผูกกับชุดเดิมที่เริ่มไว้ ไม่ใช่ชุดปัจจุบัน)
+      S.attemptSetId = (r.setId!==undefined && r.setId!==null) ? r.setId : S.cfg.activeSetId;
+      // ครูสลับชุด active ไปแล้วหลังจากเริ่มสอบ — เนื้อข้อสอบที่ boot() โหลดมาตอนแรกเป็นชุดใหม่
+      // ต้องสลับกลับไปใช้ชุดเดิมที่เริ่มไว้ ไม่งั้นคำตอบที่กู้คืนมาจะเทียบกับข้อที่ผิดชุด
+      if(r.resumeExam && r.resumeExam.convos && r.resumeExam.questions){
+        CONVOS = r.resumeExam.convos; QUESTIONS = r.resumeExam.questions; EXAM_FROM_SHEET = true;
+        toast('ครูเปลี่ยนชุดข้อสอบหลังจากเริ่มสอบไปแล้ว — ระบบพาเข้าชุดเดิมที่เริ่มไว้ให้ต่อ');
+      }
       S.bcSeen = Number(r.serverNow)||0; S.stopSeen = Number(r.serverNow)||0; S.resumeSeen = Number(r.serverNow)||0;
       S.violations = Number(r.violations)||0;
+      S.answers = new Array(QUESTIONS.length).fill(-1); // เติมค่าว่างตาม QUESTIONS หลังสลับชุด (ถ้ามี) แล้วเท่านั้น กันความยาวไม่ตรงกัน
       if(r.resumed && Array.isArray(r.savedAnswers) && r.savedAnswers.length===QUESTIONS.length){
         S.answers = r.savedAnswers.map(Number); toast('กู้คำตอบเดิมกลับมาให้แล้ว ✓');
       }
@@ -1590,6 +1621,7 @@ async function enterPracticeFromResult(){
   try{
     const r = await api({action:'practiceCheckEligibility', classLevel:S.cls, room:S.room, no:S.no, name:S.name});
     if(!r.ok){ modal('ยังไม่เปิดโหมดนี้','ตอนนี้ครูยังไม่เปิดโหมดฝึกฝนกู้คะแนน กรุณาติดต่อครูโอ๊ตนะครับ'); return; }
+    syncExamContent(r.exam);
     S.pracElig = r;
     if(offerAlreadyPassedIfSo(r)) return;
     enterPracticeHome();
@@ -1871,7 +1903,7 @@ async function doSubmit(auto){
     let ok=false;
     for(let i=0;i<3&&!ok;i++){
       try{ const r=await api({action:'submitExam', key:S.key, name:S.name, classLevel:S.cls, room:S.room, no:S.no,
-        score:S.score, total:QUESTIONS.length, timeUsedSec:timeUsed, violations:S.violations, answers:S.answers});
+        score:S.score, total:QUESTIONS.length, timeUsedSec:timeUsed, violations:S.violations, answers:S.answers, setId:S.attemptSetId});
         if(r.ok) ok=true; }catch(e){ await new Promise(rs=>setTimeout(rs,1200)); }
     }
     if(!ok){
@@ -2047,6 +2079,7 @@ async function adminLogin(){
     const r=await api({action:'adminLogin', pin:pin});
     if(!r.ok){ $('adminErr').style.display='block'; sfxWarn(); return; }
     S.adminPin=pin; S.adminVioMs=-1; S.adminVioInit=false;
+    S.examSets = r.examSets || S.examSets;
     applyConfig(r.config); fillSettings(r.config); fillFilters();
     S.phase='admin'; show('scrAdmin'); startPoll(); sfxOk();
   }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
@@ -2072,7 +2105,7 @@ async function pollOnce(){
   try{
     const r=await api({action:'adminLive', pin:S.adminPin});
     if(!r.ok) return;
-    S.adminData=r; checkNewVio(r.violations); renderAdmin();
+    S.adminData=r; if(r.examSets) S.examSets=r.examSets; checkNewVio(r.violations); renderAdmin();
   }catch(e){}
 }
 const VIO_LABELS={TAB_SWITCH:'สลับแท็บ/ออกจากหน้าจอ',WINDOW_BLUR:'ออกจากหน้าต่างสอบ',TRANSLATE:'ใช้โปรแกรมแปลภาษา',
@@ -2091,6 +2124,12 @@ function passFilter(it){
   if(r&&String(it.room)!==r) return false;
   if(q&&!(String(it.name).toLowerCase().indexOf(q)>=0||String(it.no)===q)) return false;
   return true;
+}
+function setLabelOf(setId){
+  setId = setId||'';
+  const found = (S.examSets||[]).find(s=>s.id===setId);
+  if(found) return found.title;
+  return setId ? 'ชุด '+setId : 'ชุดหลัก';
 }
 function renderAdmin(){
   const d=S.adminData; if(!d) return;
@@ -2111,22 +2150,24 @@ function renderAdmin(){
       ?'<button class="btn btn-sm btn-pink" data-resume="'+esc(a.key)+'" data-name="'+esc(a.name)+'">▶ ต่อ</button>'
       :'<button class="btn btn-sm" data-pause="'+esc(a.key)+'" data-name="'+esc(a.name)+'">⏸ พัก</button>';
     return '<tr><td>'+esc(a.classLevel)+'/'+esc(a.room)+'</td><td>'+esc(a.no)+'</td><td class="name">'+esc(a.name)+'</td>'
+      +'<td class="hint">'+esc(setLabelOf(a.setId))+'</td>'
       +'<td>'+(a.current||'–')+'</td><td>'+a.answered+'/'+(a.total||'–')+'</td><td>'+fmtSec(a.remaining)+'</td>'
       +'<td>'+vio+'</td><td>'+sig+'</td><td style="white-space:normal;display:flex;gap:4px;flex-wrap:wrap;">'+pauseBtn
       +'<button class="btn btn-sm'+(a.lastChatWho==='s'?' btn-pink':'')+'" data-msg="'+esc(a.key)+'" data-name="'+esc(a.name)+'">💬'
         +(a.chatCount?' '+a.chatCount:'')+(a.lastChatWho==='s'?'<span class="chat-badge"></span>':'')+'</button>'
       +'<button class="btn btn-sm btn-danger" data-stop="'+esc(a.key)+'" data-name="'+esc(a.name)+'">หยุด</button>'
       +'<button class="btn btn-sm btn-danger" data-reset="'+esc(a.key)+'" data-name="'+esc(a.name)+'">ปลดล็อก</button></td></tr>';
-  }).join('') : '<tr><td colspan="9" class="empty-cell">🕒 ยังไม่มีนักเรียนกำลังสอบ</td></tr>';
+  }).join('') : '<tr><td colspan="10" class="empty-cell">🕒 ยังไม่มีนักเรียนกำลังสอบ</td></tr>';
 
   const res=d.results.filter(passFilter);
   $('resultBody').innerHTML = res.length ? res.map(r=>{
     const t=(r.submitText||'').split(' ')[1]||r.submitText||'–';
     const vio=r.violations>0?'<span class="pill bad">'+r.violations+'</span>':'<span class="pill ok">0</span>';
     return '<tr><td>'+esc(t)+'</td><td>'+esc(r.classLevel)+'/'+esc(r.room)+'</td><td>'+esc(r.no)+'</td><td class="name">'+esc(r.name)+'</td>'
+      +'<td class="hint">'+esc(setLabelOf(r.setId))+'</td>'
       +'<td class="score-cell">'+r.score+'/'+r.total+'</td><td>'+fmtSec(r.timeUsedSec)+'</td><td>'+vio+'</td>'
       +'<td><button class="btn btn-sm btn-danger" data-reset="'+esc(r.key)+'" data-name="'+esc(r.name)+'">ปลดล็อก (สอบใหม่)</button></td></tr>';
-  }).join('') : '<tr><td colspan="8" class="empty-cell">📭 ยังไม่มีผู้ส่งคำตอบ</td></tr>';
+  }).join('') : '<tr><td colspan="9" class="empty-cell">📭 ยังไม่มีผู้ส่งคำตอบ</td></tr>';
 
   const vs=(d.violations||[]).slice(0,25);
   $('vioBody').innerHTML = vs.length ? vs.map(v=>'<tr><td>'+esc((v.timeText||'').split(' ')[1]||v.timeText||'')+'</td>'
@@ -2186,6 +2227,7 @@ async function loadPracticeList(){
     const r=await api({action:'adminPracticeList', pin:S.adminPin});
     if(!r.ok) return;
     S.pracList=r.list; renderPracticeList();
+    const hint=$('pracSetHint'); if(hint) hint.textContent=setLabelOf(S.cfg.activeSetId);
   }catch(e){ toast('โหลดข้อมูลไม่สำเร็จ'); }
 }
 function renderPracticeList(){
@@ -2244,8 +2286,8 @@ $('btnExamToggle').addEventListener('click',()=>{
 });
 $('btnExportCsv').addEventListener('click',()=>{
   const d=S.adminData; if(!d||!d.results.length){ toast('ยังไม่มีผลสอบให้ดาวน์โหลด'); return; }
-  const rows=[['เวลาส่ง','ชั้น','ห้อง','เลขที่','ชื่อ','คะแนน','เต็ม','ใช้เวลา(วินาที)','ผิดกติกา']];
-  d.results.forEach(r=>rows.push([r.submitText,r.classLevel,r.room,r.no,r.name,r.score,r.total,r.timeUsedSec,r.violations]));
+  const rows=[['เวลาส่ง','ชั้น','ห้อง','เลขที่','ชื่อ','ชุดข้อสอบ','คะแนน','เต็ม','ใช้เวลา(วินาที)','ผิดกติกา']];
+  d.results.forEach(r=>rows.push([r.submitText,r.classLevel,r.room,r.no,r.name,setLabelOf(r.setId),r.score,r.total,r.timeUsedSec,r.violations]));
   const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
@@ -2272,7 +2314,18 @@ function fillSettings(c){
   $('cfgPassScore').value=(c.passScore!==undefined&&c.passScore!=='')?c.passScore:S.cfg.passScoreNum;
   $('cfgPracMin').value=(c.practiceMinScore!==undefined&&c.practiceMinScore!=='')?c.practiceMinScore:S.cfg.practiceMinScoreNum;
   $('cfgTotalQHint').textContent=QUESTIONS.length;
+  fillActiveSetPicker(c.activeSetId||'');
   updateExamInfo();
+}
+function fillActiveSetPicker(activeSetId){
+  const sel=$('cfgActiveSet'); if(!sel) return;
+  const sets = (S.examSets&&S.examSets.length) ? S.examSets
+    : [{id:'', title:'ชุดหลัก (ค่าเริ่มต้น)', questions:QUESTIONS.length, conversations:CONVOS.length}];
+  sel.innerHTML = sets.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.title)+' — '+s.questions+' ข้อ · '+s.conversations+' บทสนทนา</option>').join('');
+  if(sets.some(s=>s.id===activeSetId)) sel.value=activeSetId;
+  $('cfgSetsInfo').textContent = sets.length>1
+    ? 'พบทั้งหมด '+sets.length+' ชุดในชีต — เลือกด้านบนแล้วกด "บันทึกการตั้งค่า" เพื่อสลับ'
+    : 'ตอนนี้มีชุดเดียว — เพิ่มแถวใหม่พร้อมรหัสชุดในคอลัมน์ set (ทั้งสองชีต) เพื่อสร้างชุดที่ 2';
 }
 async function saveCfg(extra){
   const cfg = extra || {
@@ -2294,6 +2347,7 @@ async function saveCfg(extra){
     practiceEnabled:$('cfgPracOn').checked?'true':'false',
     passScore:String(Math.max(0,parseInt($('cfgPassScore').value,10)||0)),
     practiceMinScore:String(Math.max(0,parseInt($('cfgPracMin').value,10)||0)),
+    activeSetId:$('cfgActiveSet')?$('cfgActiveSet').value:(S.cfg.activeSetId||''),
     adminPin:(/^\d{4,6}$/.test($('cfgPin').value.trim())?$('cfgPin').value.trim():S.cfg.adminPin)
   };
   if(OFFLINE){ applyConfig(Object.assign({},S.cfg,cfg)); fillSettings(S.cfg); toast('โหมดฝึกซ้อม: บันทึกชั่วคราวในเครื่องเท่านั้น'); return; }
@@ -2308,10 +2362,14 @@ async function saveCfg(extra){
   }catch(e){ toast('เชื่อมต่อไม่สำเร็จ'); }
 }
 $('btnReloadExam').addEventListener('click',()=>location.reload());
+$('btnReloadSets').addEventListener('click',()=>location.reload());
 function updateExamInfo(){
   const el=$('cfgExamInfo'); if(!el) return;
+  const activeId = S.cfg.activeSetId||'';
+  const setInfo = (S.examSets||[]).find(s=>s.id===activeId);
+  const setLabel = setInfo ? setInfo.title : (activeId ? 'ชุด '+activeId : 'ชุดหลัก (ค่าเริ่มต้น)');
   el.textContent = EXAM_FROM_SHEET
-    ? 'ข้อสอบจากชีต · '+QUESTIONS.length+' ข้อ · '+CONVOS.length+' บทสนทนา'
+    ? 'ข้อสอบจากชีต · '+setLabel+' · '+QUESTIONS.length+' ข้อ · '+CONVOS.length+' บทสนทนา'
     : 'ชุดสำรองในโค้ด · '+QUESTIONS.length+' ข้อ · '+CONVOS.length+' บทสนทนา';
 }
 $('btnSaveCfg').addEventListener('click',()=>saveCfg());
@@ -2369,7 +2427,8 @@ function renderWar(){
   else $('warBc').classList.remove('show');
 }
 
-window.__EXAM_DEBUG={S,QUESTIONS,CONVOS,doSubmit,renderAll,startPracticeRound,doPracticeSubmit,enterPracticeHome,enterPracticeFromResult};
+window.__EXAM_DEBUG={S,doSubmit,renderAll,startPracticeRound,doPracticeSubmit,enterPracticeHome,enterPracticeFromResult,
+  get QUESTIONS(){ return QUESTIONS; }, get CONVOS(){ return CONVOS; }}; // getters: QUESTIONS/CONVOS get reassigned after boot() loads sheet data, plain value capture would go stale
 boot();
 </script>
 </body>
