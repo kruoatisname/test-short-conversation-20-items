@@ -106,6 +106,27 @@ input,textarea,select{font-family:var(--font);-webkit-user-select:text;user-sele
 .chip:active{transform:scale(.96);}
 .chip.sel{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#2b0212;border-color:transparent;box-shadow:0 8px 22px rgba(var(--pink-rgb),.4);}
 
+/* รายชื่อนักเรียน — เลือกจากชีต Students แตะเดียวจบ ไม่ต้องพิมพ์ */
+#studentList{max-height:330px;overflow-y:auto;border-radius:14px;border:1px solid var(--glass-line);-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(var(--pink-rgb),.5) transparent;}
+#studentList::-webkit-scrollbar{width:9px;}
+#studentList::-webkit-scrollbar-track{background:transparent;}
+#studentList::-webkit-scrollbar-thumb{background:rgba(var(--pink-rgb),.45);border-radius:99px;border:2px solid transparent;background-clip:content-box;}
+.stu-row{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+  padding:13px 14px;background:rgba(var(--panel-rgb),.5);border:none;border-bottom:1px solid rgba(255,255,255,.09);
+  color:#fff;font-family:var(--font);font-size:15px;font-weight:500;touch-action:manipulation;}
+.stu-row:last-child{border-bottom:none;}
+.stu-row .no-badge{flex:none;min-width:64px;text-align:center;font-size:13px;font-weight:700;color:var(--mint);
+  background:rgba(var(--mint-rgb),.14);border:1px solid rgba(var(--mint-rgb),.4);border-radius:9px;padding:5px 8px;}
+.stu-row.sel{background:rgba(var(--pink-rgb),.2);}
+.stu-row.sel .no-badge{color:#2b0212;background:var(--pink);border-color:var(--pink);}
+.list-note{padding:22px;text-align:center;font-size:14px;color:#e8bcd3;}
+@media (hover:hover) and (pointer:fine){ .stu-row:hover{background:rgba(var(--pink-rgb),.14);} }
+#selSummary{display:none;margin-top:14px;border-radius:14px;padding:14px 16px;
+  background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.5);font-size:15px;line-height:1.6;}
+#selSummary.show{display:block;}
+#selSummary b{color:var(--mint);}
+
 .info-chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
 .info-chip{flex:1;min-width:118px;border-radius:14px;padding:12px;text-align:center;position:relative;overflow:hidden;
   background:rgba(var(--panel-rgb),.55);border:1px solid var(--glass-line);}
@@ -632,24 +653,23 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
   <div class="bar" id="closedBar">⛔ ขณะนี้ยังไม่เปิดการสอบ กรุณารอครูโอ๊ตประกาศ</div>
 
   <div class="card">
-    <h2><span class="stepnum">1</span> กรอกชื่อของคุณ</h2>
-    <div class="field"><label>ชื่อ - นามสกุล</label><input type="text" id="inName" maxlength="60" placeholder="เช่น สมชาย ใจดี" autocomplete="off"></div>
-    <div class="field"><label>เลขที่</label><input type="number" id="inNo" min="1" max="50" inputmode="numeric" placeholder="1 - 50"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="stepnum">2</span> เลือกระดับชั้นและห้อง</h2>
+    <h2><span class="stepnum">1</span> เลือกระดับชั้น</h2>
     <div class="chips" id="classChips"></div>
-    <div class="chips rooms" id="roomChips" style="margin-top:10px;"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="stepnum">3</span> ตรวจสอบแล้วเริ่มได้เลย</h2>
-    <p class="hint" id="regSummary">กรอกข้อมูลให้ครบทุกช่องก่อนนะ</p>
+  <div class="card hidden" id="roomCard">
+    <h2><span class="stepnum">2</span> เลือกห้อง</h2>
+    <div class="chips rooms" id="roomChips"></div>
+  </div>
+
+  <div class="card hidden" id="stuCard">
+    <h2><span class="stepnum">3</span> เลือกชื่อของคุณ <span class="hint">(เลื่อนหา แล้วแตะเลือก)</span></h2>
+    <div id="studentList"><div class="list-note">กำลังโหลดรายชื่อ...</div></div>
+    <div id="selSummary"></div>
     <button class="btn btn-pink btn-block" id="btnToRules" style="margin-top:14px;" disabled>ยืนยันตัวตน ➜</button>
   </div>
 
-  <div id="foot">T-GAT SHORT CONVERSATION · 1 คน ทำได้ 1 ครั้ง <button id="adminLink">สำหรับครูผู้คุมสอบ</button> <button id="practiceLink" class="hidden">🎯 ฝึกฝนกู้คะแนน</button></div>
+  <div id="foot">T-GAT SHORT CONVERSATION · 1 คน ทำได้ 1 ครั้ง <button id="adminLink">🇬🇧 T"OAT 🇹🇭</button> <button id="practiceLink" class="hidden">🎯 ฝึกฝนกู้เอกราช</button></div>
 </section>
 
 <!-- ============ RULES ============ -->
@@ -917,6 +937,13 @@ td.name{max-width:180px;overflow:hidden;text-overflow:ellipsis;}
         <div class="set-field"><label>ฝึกกู้คะแนน: แต่ละรอบต้องได้อย่างน้อย</label><input type="number" id="cfgPracMin" min="0"></div>
       </div>
       <p class="hint" style="margin-top:10px;">💡 จำนวนรอบที่ต้องฝึกคำนวณอัตโนมัติจาก "เกณฑ์ผ่าน − คะแนนที่นักเรียนได้" ใครพลาดเยอะกว่าก็ฝึกเยอะกว่า (อย่างน้อย 1 รอบเสมอ) แต่ละรอบต้องทำถึงเกณฑ์ขั้นต่ำด้วยตัวเอง ถึงจะนับ ไม่ใช่นับรวมแล้วเฉลี่ยเอา</p>
+    </div>
+    <div class="card">
+      <h2>👥 รายชื่อนักเรียนอยู่บน Google Sheets</h2>
+      <p class="hint" style="line-height:1.8;">อยู่ในชีต <b>Students</b> — คอลัมน์: <b>ชั้น, ห้อง, เลขที่, ชื่อ-นามสกุล</b><br>
+      เพิ่ม/แก้/ลบแถวได้เลยตามจริง นักเรียนหน้าเว็บแค่เลือกชั้น → ห้อง → แตะชื่อตัวเอง ไม่ต้องพิมพ์อะไรทั้งนั้น<br>
+      ⚠️ ถ้ายังไม่ใส่รายชื่อของห้องไหน นักเรียนห้องนั้นจะเข้าสอบไม่ได้ (ระบบจะบอกให้ไปแจ้งครู) — ใส่ให้ครบทุกห้องก่อนเปิดสอบจริง<br>
+      ชีตนี้สร้างพร้อมตัวอย่าง 5 แถวให้ดูรูปแบบตอนเปิดใช้งานครั้งแรก ลบตัวอย่างแล้วใส่รายชื่อจริงแทนได้เลย</p>
     </div>
     <div class="card">
       <h2>📝 ข้อสอบอยู่บน Google Sheets</h2>
@@ -1192,7 +1219,7 @@ const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-moti
 const OFFLINE = !API_URL || API_URL.indexOf('/exec') === -1;
 let EXAM_FROM_SHEET = false;
 const S = { cfg:Object.assign({},DEFAULT_CFG), isAdmin:false, adminPin:'',
-  name:'', no:'', cls:null, room:null, key:'', attemptSetId:'',
+  name:'', no:'', cls:null, room:null, key:'', attemptSetId:'', student:null,
   answers:[], order:[], cur:0, seed:0, startMs:0, offset:0, baseDurMs:0, extendMs:0, endTime:0,
   violations:0, lastVio:0, phase:'boot', submitted:false, submitting:false,
   warned5:false, warned1:false, score:0, timerInt:null, hbInt:null, adminInt:null,
@@ -1305,25 +1332,77 @@ async function boot(){
 /* ══════════════════ REGISTER ══════════════════ */
 (function buildChips(){
   CLASSES.forEach(c=>{ const b=document.createElement('button'); b.className='chip'; b.textContent=c;
-    b.addEventListener('click',()=>{ sfxClick(); S.cls=c;
-      document.querySelectorAll('#classChips .chip').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); checkReg(); });
+    b.addEventListener('click',()=>{ sfxClick(); pickClass(c, b); });
     $('classChips').appendChild(b); });
   ROOMS.forEach(r=>{ const b=document.createElement('button'); b.className='chip'; b.textContent='ห้อง '+r;
-    b.addEventListener('click',()=>{ sfxClick(); S.room=r;
-      document.querySelectorAll('#roomChips .chip').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); checkReg(); });
+    b.addEventListener('click',()=>{ sfxClick(); pickRoom(r, b); });
     $('roomChips').appendChild(b); });
 })();
-function checkReg(){
-  S.name=$('inName').value.trim(); S.no=$('inNo').value.trim();
-  const noOk=/^\d+$/.test(S.no)&&+S.no>=1&&+S.no<=50;
-  const ok = S.name.length>=2 && noOk && S.cls && S.room;
-  $('btnToRules').disabled=!ok;
-  $('regSummary').innerHTML = ok
-    ? '👤 <b>'+esc(S.name)+'</b> · '+esc(S.cls)+'/'+esc(S.room)+' เลขที่ '+esc(S.no)+'<br><span class="hint">ถ้าข้อมูลถูกต้องแล้ว กดยืนยันได้เลย</span>'
-    : 'กรอกชื่อ-นามสกุล เลขที่ (1–50) และเลือกชั้น/ห้องให้ครบก่อนนะ';
+function pickClass(c, btn){
+  S.cls=c; S.room=null; S.no=''; S.name=''; S.student=null;
+  document.querySelectorAll('#classChips .chip').forEach(x=>x.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.querySelectorAll('#roomChips .chip').forEach(x=>x.classList.remove('sel'));
+  $('roomCard').classList.remove('hidden');
+  $('stuCard').classList.add('hidden');
+  resetSelSummary();
 }
-$('inName').addEventListener('input',checkReg);
-$('inNo').addEventListener('input',checkReg);
+function pickRoom(r, btn){
+  S.room=r; S.no=''; S.name=''; S.student=null;
+  document.querySelectorAll('#roomChips .chip').forEach(x=>x.classList.remove('sel'));
+  btn.classList.add('sel');
+  $('stuCard').classList.remove('hidden');
+  resetSelSummary();
+  loadStudents();
+}
+function resetSelSummary(){
+  $('selSummary').classList.remove('show'); $('selSummary').innerHTML='';
+  $('btnToRules').disabled=true;
+}
+async function loadStudents(){
+  const list=$('studentList');
+  const forCls=S.cls, forRoom=S.room; // จำไว้ตอนเริ่มโหลด กันคำตอบที่มาช้าทับรายชื่อห้องที่เพิ่งเปลี่ยนไปแล้ว
+  list.innerHTML='<div class="list-note">กำลังโหลดรายชื่อ...</div>';
+  if(OFFLINE){
+    list.innerHTML='<div class="list-note">🧪 โหมดฝึกซ้อม (ยังไม่ได้ต่อ Google Sheets) — นี่คือรายชื่อตัวอย่าง ไม่ใช่รายชื่อจริง</div>';
+    [{no:1,name:'ตัวอย่าง หนึ่ง'},{no:2,name:'ตัวอย่าง สอง'},{no:3,name:'ตัวอย่าง สาม'}].forEach(stu=>{
+      const b=document.createElement('button');
+      b.className='stu-row';
+      b.innerHTML='<span class="no-badge">เลขที่ '+esc(stu.no)+'</span><span>'+esc(stu.name)+'</span>';
+      b.addEventListener('click',()=>{ sfxClick(); pickStudent(stu, b); });
+      list.appendChild(b);
+    });
+    return;
+  }
+  try{
+    const r=await api({action:'getStudents', classLevel:forCls, room:forRoom});
+    if(S.cls!==forCls || S.room!==forRoom) return; // เปลี่ยนชั้น/ห้องไปแล้วระหว่างรอ — ทิ้งคำตอบนี้ไม่ใช้
+    if(!r.ok) throw new Error();
+    if(!r.students.length){
+      list.innerHTML='<div class="list-note">ไม่พบรายชื่อของ '+esc(S.cls)+'/'+esc(S.room)+'<br>แจ้งครูโอ๊ตเพื่อเพิ่มรายชื่อในชีต Students</div>';
+      return;
+    }
+    list.innerHTML='';
+    r.students.forEach(stu=>{
+      const b=document.createElement('button');
+      b.className='stu-row';
+      b.innerHTML='<span class="no-badge">เลขที่ '+esc(stu.no)+'</span><span>'+esc(stu.name)+'</span>';
+      b.addEventListener('click',()=>{ sfxClick(); pickStudent(stu, b); });
+      list.appendChild(b);
+    });
+  }catch(e){
+    if(S.cls!==forCls || S.room!==forRoom) return; // เปลี่ยนไปแล้วเหมือนกัน — ไม่ต้องโชว์ error ของห้องเก่า
+    list.innerHTML='<div class="list-note">❌ โหลดรายชื่อไม่สำเร็จ แตะห้องอีกครั้งเพื่อลองใหม่</div>';
+  }
+}
+function pickStudent(stu, btn){
+  S.student=stu; S.no=String(stu.no); S.name=stu.name;
+  document.querySelectorAll('.stu-row').forEach(x=>x.classList.remove('sel'));
+  btn.classList.add('sel');
+  $('selSummary').innerHTML='👤 <b>'+esc(stu.name)+'</b><br>ชั้น <b>'+esc(S.cls)+'/'+esc(S.room)+'</b> เลขที่ <b>'+esc(stu.no)+'</b><br><span class="hint">ถ้าไม่ใช่ตัวคุณ ให้แตะเลือกชื่อใหม่</span>';
+  $('selSummary').classList.add('show');
+  $('btnToRules').disabled=false;
+}
 $('btnBackReg').addEventListener('click',()=>show('scrRegister'));
 $('agreeChk').addEventListener('change',e=>{ $('btnStart').disabled=!e.target.checked; });
 $('adminLink').addEventListener('click',()=>{ const u=new URL(location.href); u.searchParams.set('admin','1'); location.href=u.toString(); });
@@ -1358,7 +1437,7 @@ $('practiceLink').addEventListener('click',()=>{
     S.entryMode='practice';
     $('practiceLink').textContent='✕ ยกเลิกโหมดฝึกฝน';
     $('btnToRules').textContent='เข้าสู่โหมดฝึกฝน ➜';
-    toast('🎯 โหมดฝึกฝนกู้คะแนน — กรอกข้อมูลแล้วกดปุ่มด้านล่างได้เลย');
+    toast('🎯 โหมดฝึกฝนกู้คะแนน — เลือกชื่อของคุณด้านล่างแล้วกดปุ่มได้เลย');
   }
 });
 /** ถ้าผ่านเกณฑ์อยู่แล้ว ถามก่อนว่ายังอยากฝึกต่อไหม — ใช้ร่วมกันทั้งเข้าจากหน้าแรกและจากหน้าผลสอบ
